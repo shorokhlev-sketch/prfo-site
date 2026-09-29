@@ -2,19 +2,11 @@
 interface Props {
   title?: string;
   description?: string;
-  noindex?: boolean;
 }
 const {
   title = 'prfo - AI Visual Production',
   description = 'AI visual production for brands that care how things look.',
-  noindex = false,
 } = Astro.props;
-// Show a discreet "prfo" brand link on every page EXCEPT the root; the
-// Hero on `/` already shows the brand as the main title, so a second link
-// would be redundant. On any subpage the link lets users get back home
-// with one click.
-const path = Astro.url.pathname.replace(/\/+$/, '');
-const isHome = path === '' || path === '/index';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +14,6 @@ const isHome = path === '' || path === '/index';
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content={description}>
-  {noindex && <meta name="robots" content="noindex, nofollow">}
   <title>{title}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,35 +35,6 @@ const isHome = path === '' || path === '/index';
     html { background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
     body { background: var(--bg); cursor: none; }
 
-    /* Subpage home link: fixed in the top-left corner, low-contrast until
-       hover so it doesn't compete with the page content. Hidden on root
-       because the Hero already shows the brand. */
-    .brand-home {
-      position: fixed; top: clamp(18px, 2.4vw, 28px); left: clamp(18px, 2.4vw, 28px);
-      z-index: 100;
-      font-family: var(--sans);
-      font-size: 0.62rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--fg-dim);
-      text-decoration: none;
-      padding: 6px 10px 6px 0;
-      transition: color 0.25s ease, transform 0.25s ease;
-    }
-    .brand-home::before {
-      content: '←';
-      display: inline-block;
-      margin-right: 8px;
-      opacity: 0;
-      transform: translateX(4px);
-      transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-    .brand-home:hover { color: var(--fg); }
-    .brand-home:hover::before { opacity: 1; transform: translateX(0); }
-    @media (pointer: coarse) {
-      .brand-home::before { opacity: 1; transform: none; }
-    }
-
     /* ── CURSOR ── */
     .cur {
       position: fixed; top: 0; left: 0;
@@ -93,7 +55,6 @@ const isHome = path === '' || path === '/index';
       column-gap: var(--gap);
       margin-top: var(--gap);
     }
-    .masonry--3 { columns: 3; }
 
     .masonry__item {
       break-inside: avoid;
@@ -102,16 +63,14 @@ const isHome = path === '' || path === '/index';
       overflow: hidden;
       cursor: none;
     }
-    .masonry__item img,
-    .masonry__item video {
+    .masonry__item img {
       display: block;
       width: 100%;
       height: auto;
       transition: transform 0.9s cubic-bezier(0.22,1,0.36,1);
       will-change: transform;
     }
-    .masonry__item:hover img,
-    .masonry__item:hover video { transform: scale(1.012); }
+    .masonry__item:hover img { transform: scale(1.012); }
 
     /* ── STATEMENT ── */
     .statement {
@@ -268,7 +227,7 @@ const isHome = path === '' || path === '/index';
       .hero__scroll { display: none; }
     }
     @media (max-width: 640px) {
-      .masonry, .masonry--3 { columns: 1; }
+      .masonry { columns: 1; }
       .hero__inner { flex-direction: column; align-items: flex-start; gap: 10px; }
       .hero__s { letter-spacing: 0.3em; }
       .statement { padding: clamp(56px, 10vh, 100px) var(--pad) clamp(40px, 8vh, 80px); }
@@ -277,9 +236,6 @@ const isHome = path === '' || path === '/index';
 </head>
 <body>
   <div class="cur" id="cur"></div>
-  {!isHome && (
-    <a href="/" class="brand-home" aria-label="Back to prfo home">prfo</a>
-  )}
   <slot />
 
   <!-- LIGHTBOX -->
