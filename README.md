@@ -2,6 +2,8 @@
 
 Source of [prfo.design](https://prfo.design), the personal site of Lev Skorokhodov: AI visual work in a masonry gallery with a lightbox.
 
+History: this is a public snapshot of a private repository (29 commits, 24 Apr to 29 Sep 2026).
+
 It is a one-page static site built with Astro 4 and about 120 lines of vanilla TypeScript. It is for anyone who wants to see the visual work, or read how it is put together without a JS framework.
 
 The engineering portfolio lives at [lab.prfo.design/portfolio](https://lab.prfo.design/portfolio/).
