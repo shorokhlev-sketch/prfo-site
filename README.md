@@ -16,7 +16,7 @@ The engineering portfolio lives at [lab.prfo.design/portfolio](https://lab.prfo.
 - Masonry with CSS `columns` (2 columns, 1 below 640 px) instead of a layout script. No JS computes the layout.
 - Images: 9 WebP files, 0.8 MB total, max width 1600 px, each under 200 KB. Gallery images load with `loading="lazy"`; the hero reuses one of them with `fetchpriority="high"`.
 - Every image is an AI render made by Lev. Some frames restage existing retail products as spec work and are not affiliated with or endorsed by their makers. Each file carries XMP metadata with the IPTC digital source type `trainedAlgorithmicMedia` and the creator name.
-- Typography: EB Garamond and Instrument Sans from Google Fonts. The palette, fonts and spacing are 8 CSS custom properties on `:root`.
+- Typography: EB Garamond and Instrument Sans from Google Fonts. The base palette, fonts and spacing are 8 CSS custom properties on `:root`; a few `rgba()` overlays repeat the background and text colors.
 
 ## Structure
 
