@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+
+const series = [
+  {
+    name: 'Person in Environment',
+    works: [
+      { src: '/images/blurgirl.webp',    alt: 'Portrait with dramatic light' },
+      { src: '/images/models.webp',      alt: 'Figure in stairwell' },
+      { src: '/images/girlbalcony.webp', alt: 'Woman on alpine balcony' },
+      { src: '/images/girlsmoking.webp', alt: 'Portrait with cigarette' },
+    ],
+  },
+  {
+    name: 'Objects',
+    works: [
+      { src: '/images/lampcounter.webp',  alt: 'Lamp on bedside table' },
+      { src: '/images/tray.webp',         alt: 'Wooden tray with vase' },
+      { src: '/images/lampcloseup.webp',  alt: 'Lampshade close-up' },
+      { src: '/images/bucketrug.webp',    alt: 'Brass bucket on shelf' },
+      { src: '/images/bucketleaves.webp', alt: 'Bucket with dried flowers' },
+    ],
+  },
+];
+---
+
+<Base>
+  <Hero />
+
+  {series.map((s, i) => (
+    <section class="series">
+      <div class="series__header reveal">
+        <span class="series__num">0{i + 1}</span>
+        <h2 class="series__name">{s.name}</h2>
+      </div>
+      <div class="masonry reveal">
+        {s.works.map(w => (
+          <div class="masonry__item">
+            <img src={w.src} alt={w.alt} loading="lazy">
+          </div>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <div class="statement reveal">
+    <p class="statement__main">The shoot never happened.<br>The image is real.</p>
+    <p class="statement__sub">AI visual production for brands that care how things look.</p>
+  </div>
+
+  <section class="contact reveal">
+    <p class="contact__label">Available for projects</p>
+    <a class="contact__email" href="https://t.me/prfowax" target="_blank" rel="noopener">t.me/prfowax</a>
+  </section>
+</Base>

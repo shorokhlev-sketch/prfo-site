@@ -1,0 +1,75 @@
+---
+---
+<section class="hero">
+  <img class="hero__bg" src="/images/lampcounter.webp" alt="" fetchpriority="high">
+  <div class="hero__grad"></div>
+  <div class="hero__inner">
+    <h1 class="hero__t">prfo</h1>
+    <p class="hero__s">AI Visual Producer</p>
+  </div>
+  <div class="hero__scroll"><span>Scroll</span></div>
+</section>
+
+<style>
+  .hero {
+    position: relative; width: 100%;
+    height: 100vh; height: 100svh;
+    min-height: 500px; overflow: hidden;
+  }
+  .hero__bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center 30%;
+    filter: brightness(0.35) contrast(1.15);
+    z-index: 0;
+  }
+  .hero__grad {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(to top,
+      #070707 0%, rgba(7,7,7,0.3) 40%,
+      transparent 65%, rgba(7,7,7,0.1) 100%
+    );
+  }
+  .hero__inner {
+    position: absolute;
+    bottom: clamp(48px, 10vh, 100px);
+    left: var(--pad);
+    z-index: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: clamp(14px, 2vw, 32px);
+    max-width: calc(100vw - var(--pad) * 2);
+    flex-wrap: wrap;
+  }
+  .hero__t {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(5.5rem, 15vw, 13rem);
+    line-height: 0.82; letter-spacing: -0.04em;
+    padding-bottom: 0.2em; flex-shrink: 0;
+    opacity: 0; transform: translateY(24px);
+    animation: up 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;
+  }
+  .hero__s {
+    font-family: var(--sans); font-weight: 400;
+    font-size: clamp(0.55rem, 1vw, 0.78rem);
+    letter-spacing: 0.38em; text-transform: uppercase;
+    color: var(--fg-dim);
+    line-height: 1; padding-bottom: 0.08em;
+    opacity: 0; transform: translateY(14px);
+    animation: up 0.9s cubic-bezier(0.16,1,0.3,1) 0.75s forwards;
+  }
+  .hero__scroll {
+    position: absolute;
+    bottom: clamp(28px, 5vh, 48px); right: var(--pad);
+    z-index: 2;
+    opacity: 0;
+    animation: up 0.8s cubic-bezier(0.16,1,0.3,1) 1.3s forwards;
+  }
+  .hero__scroll span {
+    font-family: var(--sans); font-size: 0.5rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--fg-muted); writing-mode: vertical-rl;
+  }
+  @keyframes up { to { opacity: 1; transform: translateY(0); } }
+</style>

@@ -1,0 +1,427 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+const {
+  title = 'prfo - AI Visual Production',
+  description = 'AI visual production for brands that care how things look.',
+  noindex = false,
+} = Astro.props;
+// Show a discreet "prfo" brand link on every page EXCEPT the root; the
+// Hero on `/` already shows the brand as the main title, so a second link
+// would be redundant. On any subpage the link lets users get back home
+// with one click.
+const path = Astro.url.pathname.replace(/\/+$/, '');
+const isHome = path === '' || path === '/index';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content={description}>
+  {noindex && <meta name="robots" content="noindex, nofollow">}
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style is:global>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #070707;
+      --fg: #e8e5df;
+      --fg-dim: #7d7a74;
+      --fg-muted: #4a4845;
+      --serif: 'EB Garamond', Georgia, serif;
+      --sans: 'Instrument Sans', system-ui, sans-serif;
+      --pad: clamp(20px, 5vw, 64px);
+      --gap: 4px;
+    }
+
+    html { background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body { background: var(--bg); cursor: none; }
+
+    /* Subpage home link: fixed in the top-left corner, low-contrast until
+       hover so it doesn't compete with the page content. Hidden on root
+       because the Hero already shows the brand. */
+    .brand-home {
+      position: fixed; top: clamp(18px, 2.4vw, 28px); left: clamp(18px, 2.4vw, 28px);
+      z-index: 100;
+      font-family: var(--sans);
+      font-size: 0.62rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      text-decoration: none;
+      padding: 6px 10px 6px 0;
+      transition: color 0.25s ease, transform 0.25s ease;
+    }
+    .brand-home::before {
+      content: '←';
+      display: inline-block;
+      margin-right: 8px;
+      opacity: 0;
+      transform: translateX(4px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .brand-home:hover { color: var(--fg); }
+    .brand-home:hover::before { opacity: 1; transform: translateX(0); }
+    @media (pointer: coarse) {
+      .brand-home::before { opacity: 1; transform: none; }
+    }
+
+    /* ── CURSOR ── */
+    .cur {
+      position: fixed; top: 0; left: 0;
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 1px solid rgba(232,229,223,0.28);
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%) scale(0);
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.2s;
+      opacity: 0;
+      mix-blend-mode: difference;
+    }
+    .cur.on { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+    @media (pointer: coarse) { .cur { display: none !important; } body { cursor: auto; } }
+
+    /* ── MASONRY ── */
+    .masonry {
+      columns: 2;
+      column-gap: var(--gap);
+      margin-top: var(--gap);
+    }
+    .masonry--3 { columns: 3; }
+
+    .masonry__item {
+      break-inside: avoid;
+      margin-bottom: var(--gap);
+      line-height: 0;
+      overflow: hidden;
+      cursor: none;
+    }
+    .masonry__item img,
+    .masonry__item video {
+      display: block;
+      width: 100%;
+      height: auto;
+      transition: transform 0.9s cubic-bezier(0.22,1,0.36,1);
+      will-change: transform;
+    }
+    .masonry__item:hover img,
+    .masonry__item:hover video { transform: scale(1.012); }
+
+    /* ── STATEMENT ── */
+    .statement {
+      padding: clamp(80px, 13vh, 140px) var(--pad) clamp(60px, 10vh, 110px);
+      max-width: 720px;
+    }
+    .statement__main {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(1.5rem, 2.6vw, 2.3rem);
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+      margin-bottom: clamp(14px, 2vw, 22px);
+    }
+    .statement__sub {
+      font-family: var(--sans);
+      font-size: clamp(0.58rem, 0.9vw, 0.75rem);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+
+    /* ── LIGHTBOX ── */
+    .lb {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(7,7,7,0.96);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.28s ease;
+      cursor: default;
+    }
+    .lb.lb--open { opacity: 1; pointer-events: all; }
+    .lb__img {
+      max-width: 90vw; max-height: 90vh;
+      object-fit: contain;
+      user-select: none; -webkit-user-drag: none;
+      cursor: zoom-in;
+      transform-origin: center;
+      transition: opacity 0.18s ease;
+    }
+    .lb__img.lb--zoomed { cursor: grab; }
+    .lb__img.lb--dragging { cursor: grabbing; transition: none; }
+    .lb__btn {
+      position: absolute;
+      background: none; border: none;
+      color: var(--fg-muted);
+      cursor: pointer;
+      transition: color 0.2s;
+      line-height: 1;
+      z-index: 2;
+    }
+    .lb__btn:hover { color: var(--fg); }
+    .lb__close {
+      top: 24px; right: 28px;
+      font-family: var(--sans); font-size: 0.9rem;
+      letter-spacing: 0.1em; padding: 8px 10px;
+    }
+    .lb__prev, .lb__next {
+      top: 50%; transform: translateY(-50%);
+      font-family: var(--serif); font-size: 2.2rem;
+      padding: 20px 18px;
+    }
+    .lb__prev { left: 0; }
+    .lb__next { right: 0; }
+    .lb__counter {
+      position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+      font-family: var(--sans); font-size: 0.52rem;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--fg-muted); pointer-events: none;
+    }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── SERIES ── */
+    .series {
+      margin-top: clamp(72px, 12vh, 120px);
+    }
+    .series__header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.4em;
+      padding: clamp(16px, 2vw, 24px) var(--pad) clamp(16px, 2.5vw, 28px);
+      border-top: 1px solid var(--fg-muted);
+    }
+    .series__num {
+      font-family: var(--sans);
+      font-size: 0.5rem;
+      letter-spacing: 0.18em;
+      color: var(--fg-muted);
+    }
+    .series__name {
+      font-family: var(--sans);
+      font-weight: 400;
+      font-size: clamp(0.58rem, 0.9vw, 0.72rem);
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+
+    /* ── CONTACT ── */
+    .contact { padding: 14vh var(--pad); }
+    .contact__label {
+      font-family: var(--sans); font-size: 0.6rem;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--fg-muted); margin-bottom: 1.2rem;
+    }
+    .contact__email {
+      font-family: var(--serif);
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      color: var(--fg); text-decoration: none;
+      border-bottom: 1px solid var(--fg-muted);
+      padding-bottom: 3px; display: inline-block;
+      transition: color 0.35s, border-color 0.35s;
+    }
+    .contact__email:hover { color: var(--fg-dim); border-color: transparent; }
+
+    /* ── RESPONSIVE ── */
+    @media (pointer: coarse) {
+      /* Lightbox: no zoom, visible arrow buttons at bottom corners */
+      .lb__img { max-height: 78vh; cursor: default; }
+      .lb__img.lb--zoomed { cursor: default; }
+      .lb__close {
+        top: 16px; right: 16px;
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        padding: 0;
+      }
+      .lb__prev, .lb__next {
+        top: auto; transform: none;
+        bottom: clamp(28px, 5vh, 44px);
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        border: 1px solid var(--fg-muted);
+        border-radius: 50%;
+        font-size: 1.1rem;
+        padding: 0;
+        color: var(--fg-dim);
+        background: rgba(7,7,7,0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+      .lb__prev { left: var(--pad); }
+      .lb__next { right: var(--pad); }
+      .lb__counter { bottom: clamp(36px, 5.5vh, 52px); }
+
+      /* Hero: hide scroll hint */
+      .hero__scroll { display: none; }
+    }
+    @media (max-width: 640px) {
+      .masonry, .masonry--3 { columns: 1; }
+      .hero__inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .hero__s { letter-spacing: 0.3em; }
+      .statement { padding: clamp(56px, 10vh, 100px) var(--pad) clamp(40px, 8vh, 80px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="cur" id="cur"></div>
+  {!isHome && (
+    <a href="/" class="brand-home" aria-label="Back to prfo home">prfo</a>
+  )}
+  <slot />
+
+  <!-- LIGHTBOX -->
+  <div class="lb" id="lb" role="dialog" aria-modal="true">
+    <button class="lb__btn lb__close" id="lb-close">✕</button>
+    <button class="lb__btn lb__prev" id="lb-prev">&#8249;</button>
+    <button class="lb__btn lb__next" id="lb-next">&#8250;</button>
+    <img class="lb__img" id="lb-img" src="" alt="">
+    <div class="lb__counter" id="lb-counter"></div>
+  </div>
+
+  <script>
+
+    // Cursor
+    const cur = document.getElementById('cur')!;
+    let mx = 0, my = 0, cx = 0, cy = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      if (!cur.classList.contains('on')) cur.classList.add('on');
+    });
+    (function tick() {
+      cx += (mx - cx) * 0.1;
+      cy += (my - cy) * 0.1;
+      cur.style.left = cx + 'px';
+      cur.style.top  = cy + 'px';
+      requestAnimationFrame(tick);
+    })();
+
+    // Scroll reveal
+    const revealObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
+      });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // Lightbox
+    (function () {
+      const imgs  = Array.from(document.querySelectorAll('.masonry__item img')) as HTMLImageElement[];
+      const lb    = document.getElementById('lb')!;
+      const lbImg = document.getElementById('lb-img') as HTMLImageElement;
+      const lbCnt = document.getElementById('lb-counter')!;
+
+      let idx = 0, scale = 1, panX = 0, panY = 0;
+      let dragging = false, startX = 0, startY = 0, touchX0 = 0;
+
+      function setTransform(animated: boolean) {
+        lbImg.style.transition = animated ? 'transform 0.2s ease' : 'none';
+        lbImg.style.transform  = `translate(${panX}px,${panY}px) scale(${scale})`;
+        lbImg.classList.toggle('lb--zoomed', scale > 1);
+      }
+      function reset() { scale = 1; panX = 0; panY = 0; }
+
+      function open(i: number) {
+        idx = i; reset();
+        lbImg.style.opacity = '1';
+        lbImg.src = imgs[idx].src;
+        lbCnt.textContent = `${idx + 1} / ${imgs.length}`;
+        setTransform(false);
+        lb.classList.add('lb--open');
+        document.body.style.overflow = 'hidden';
+      }
+      function close() {
+        lb.classList.remove('lb--open');
+        document.body.style.overflow = '';
+        setTimeout(() => { lbImg.src = ''; }, 300);
+      }
+      function go(dir: number) {
+        lbImg.style.opacity = '0';
+        setTimeout(() => {
+          idx = (idx + dir + imgs.length) % imgs.length;
+          reset();
+          lbImg.src = imgs[idx].src;
+          lbCnt.textContent = `${idx + 1} / ${imgs.length}`;
+          setTransform(false);
+          lbImg.style.opacity = '1';
+        }, 160);
+      }
+
+      imgs.forEach((img, i) => img.addEventListener('click', () => open(i)));
+      document.getElementById('lb-close')!.addEventListener('click', close);
+      document.getElementById('lb-prev')!.addEventListener('click', e => { e.stopPropagation(); go(-1); });
+      document.getElementById('lb-next')!.addEventListener('click', e => { e.stopPropagation(); go(1); });
+      lb.addEventListener('click', e => { if (e.target === lb) close(); });
+
+      document.addEventListener('keydown', e => {
+        if (!lb.classList.contains('lb--open')) return;
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowLeft') go(-1);
+        if (e.key === 'ArrowRight') go(1);
+      });
+
+      let lastWheel = 0;
+      lb.addEventListener('wheel', e => {
+        if (!lb.classList.contains('lb--open')) return;
+        e.preventDefault();
+        const now = Date.now();
+        if (now - lastWheel < 650) return;
+        lastWheel = now;
+        go(e.deltaY > 0 ? 1 : -1);
+      }, { passive: false });
+
+      const isMobile = window.matchMedia('(pointer: coarse)').matches;
+      lbImg.addEventListener('click', e => {
+        e.stopPropagation();
+        if (isMobile) return;
+        scale = scale > 1 ? 1 : 2.5;
+        if (scale === 1) { panX = 0; panY = 0; }
+        setTransform(true);
+      });
+
+      lbImg.addEventListener('pointerdown', e => {
+        if (scale <= 1) return;
+        dragging = true;
+        lbImg.classList.add('lb--dragging');
+        startX = e.clientX - panX; startY = e.clientY - panY;
+        lbImg.setPointerCapture(e.pointerId);
+      });
+      lbImg.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        panX = e.clientX - startX; panY = e.clientY - startY;
+        setTransform(false);
+      });
+      lbImg.addEventListener('pointerup', () => {
+        dragging = false;
+        lbImg.classList.remove('lb--dragging');
+      });
+
+      // Block pinch zoom only inside the lightbox
+      lb.addEventListener('touchstart', e => {
+        if (e.touches.length > 1) { e.preventDefault(); return; }
+        touchX0 = e.touches[0].clientX;
+      }, { passive: false });
+      lb.addEventListener('touchmove', e => {
+        if (e.touches.length > 1) e.preventDefault();
+      }, { passive: false });
+      lb.addEventListener('touchend', e => {
+        if (scale > 1) return;
+        const dx = touchX0 - e.changedTouches[0].clientX;
+        if (Math.abs(dx) > 48) go(dx > 0 ? 1 : -1);
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
