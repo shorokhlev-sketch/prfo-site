@@ -1,6 +1,6 @@
 # prfo-site
 
-Source of [prfo.design](https://prfo.design), the personal site of Lev Skorokhodov: AI visual work in a masonry gallery with a lightbox.
+Source of [prfo.design/visual](https://prfo.design/visual/), the personal site of Lev Skorokhodov: AI visual work in a masonry gallery with a lightbox.
 
 History: this is a public snapshot of a private repository (29 commits, 24 Apr to 29 Sep 2026).
 
@@ -46,7 +46,7 @@ Deploy is a copy of `dist/` to any static host.
 
 ## Status
 
-Live at [prfo.design](https://prfo.design). The live site still serves an earlier build (a different hero, one more series, heavier images without XMP metadata); this repo is the current source.
+Live at [prfo.design/visual](https://prfo.design/visual/). The live site still serves an earlier build (a different hero, one more series, heavier images without XMP metadata); this repo is the current source.
 
 ## License
 
