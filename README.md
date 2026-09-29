@@ -48,4 +48,4 @@ Live at [prfo.design](https://prfo.design). This repo is a snapshot of the produ
 
 ## License
 
-Code: MIT, see [LICENSE](LICENSE). The images in `public/images/` are AI renders by Lev Skorokhodov and are not covered by the MIT license; ask before reusing them.
+Code: MIT, see [LICENSE](LICENSE). The images in `public/images/` and `docs/screenshot.webp` are AI renders by Lev Skorokhodov and are not covered by the MIT license; ask before reusing them.
